@@ -1,4 +1,5 @@
-const express = require('express') //importing express
+// const express = require('express') //importing express
+import express from "express"; //"type": "module"
 const app = express()
 
 const PORT = 4000;
@@ -94,7 +95,15 @@ app.get("/", function (req, res) {
 app.get("/movies", function (req, res) {
     res.send(movies);
     
-  })
+})
+
+app.get("/movies/:id", function (req, res) {
+    const {id} = req.params;
+    console.log(req.params, id);
+    const movie = movies.find( (mv) => mv.id === id); 
+    res.send(movie);
+    
+})
 
 app.listen(PORT, () => console.log(`App started in ${PORT}`));
 
