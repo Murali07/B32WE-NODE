@@ -100,10 +100,14 @@ app.get("/movies", function (req, res) {
 app.get("/movies/:id", function (req, res) {
     const {id} = req.params;
     console.log(req.params, id);
-    const movie = movies.find( (mv) => mv.id === id); 
+    const movie = movies.find( (mv) => mv.id == id); 
     res.send(movie);
     
 })
+
+app.put("/movies/:id", async function (request, response) {
+
+});
 
 app.listen(PORT, () => console.log(`App started in ${PORT}`));
 
