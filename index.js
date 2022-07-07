@@ -1,6 +1,8 @@
-// const express = require('express') //importing express
+// const express = require('express') //importing express  "type": "commonjs"
 import express from "express"; //"type": "module"
-const app = express()
+import { MongoClient } from "mongodb";
+
+const app = express();
 
 const PORT = 4000;
 
@@ -88,20 +90,31 @@ const movies = [
       
 ]
 
-app.get("/", function (req, res) {
-  res.send("Welcome to our app");
+const MONGO_URL = "mongodb://localhost";
+
+async function createConnection(){
+  const client = new MongoClient(MONGO_URL);
+  await client.connect();
+  console.log("Mongo is connected");
+}
+
+createConnection();
+
+app.get("/", function (request, response) {
+  response.send("Welcome to our app");
 })
 
-app.get("/movies", function (req, res) {
-    res.send(movies);
+app.get("/movies", function (request, response) {
+  response.send(movies);
     
 })
 
-app.get("/movies/:id", function (req, res) {
-    const {id} = req.params;
-    console.log(req.params, id);
+app.get("/movies/:id", function (request, response) {
+    const {id} = request.params;
+    console.log(request.params, id);
     const movie = movies.find( (mv) => mv.id == id); 
-    res.send(movie);
+    console.log(movie);
+    movie ? response.send(movie) : response.send({ msg: "Movie not find" });
     
 })
 
