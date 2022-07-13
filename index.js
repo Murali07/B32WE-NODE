@@ -1,6 +1,11 @@
 // const express = require('express') //importing express  "type": "commonjs"
 import express from "express"; //"type": "module"
 import { MongoClient } from "mongodb";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// console.log(process.env.MONGO_URL);
 
 const app = express();
 
@@ -98,7 +103,9 @@ const PORT = 4000;
 // app.use -> Intercepts -> applies express.json() (inbuilt middleware)
 app.use(express.json());
 
-const MONGO_URL = "mongodb://localhost";
+const MONGO_URL = process.env.MONGO_URL;
+
+// const MONGO_URL = "mongodb://localhost";
 
 async function createConnection(){
   const client = new MongoClient(MONGO_URL);
@@ -116,11 +123,20 @@ app.get("/", function (request, response) {
 app.get("/movies", async function (request, response) {
   // db.movies.find({})
 
+  console.log(request.query);
+
+// to convert string to number
+  if(request.query.rating){
+    request.query.rating = +request.query.rating;
+  }
+
+  // console.log(request.query);
+
   // Cursor -> Pagination | cursor -> Array | toArray()
   const movies = await client
     .db("test")
     .collection("movies")
-    .find({})
+    .find(request.query)
     .toArray();
 
   response.send(movies);
@@ -141,6 +157,23 @@ app.get("/movies/:id", async function (request, response) {
 
     movie ? response.send(movie) : response.send({ msg: "Movie not find" });
     
+});
+
+// Delete movie by id
+app.delete("/movies/:id", async function (request, response) {
+  const {id} = request.params;
+  console.log(request.params, id);
+
+  //db.movies.deleteOne({id: "102"})
+
+  // const movie = movies.find((mv) => mv.id == id); 
+  
+
+  const result = await client.db("test").collection("movies").deleteOne({id: id})
+  console.log(result);
+
+  result.deletedCount > 0 ? response.send({msg: "Movie Deleted Successfully!"}) : response.send({ msg: "Movie not find" });
+  
 });
 
 // middleware - express.json() -> body -> JSON
