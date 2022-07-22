@@ -195,9 +195,23 @@ app.post("/movies", async function (request, response) {
     
 });
 
-// app.put("/movies/:id", async function (request, response) {
+app.put("/movies/:id", async function (request, response) {
+  const {id} = request.params;
+  const data = request.body;
+  //db.movies.updateOne({id: id}, {$set: data})
 
-// });
+  console.log(data);
+
+  const result = await client
+      .db("test")
+      .collection("movies")
+      .updateOne({id: id}, {$set: data});
+
+  console.log(result);
+
+  response.send(result);
+
+});
 
 app.listen(PORT, () => console.log(`App started in ${PORT}`));
 
