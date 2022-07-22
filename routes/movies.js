@@ -1,5 +1,5 @@
 import express from "express";
-import {client} from "../index.js";
+import { getAllMovies, getMovieById, deleteMovieById, createMovies, updateMovieById } from "./helper.js";
 const router = express.Router();
 
 
@@ -17,11 +17,7 @@ router.get("/", async function (request, response) {
     // console.log(request.query);
   
     // Cursor -> Pagination | cursor -> Array | toArray()
-    const movies = await client
-      .db("test")
-      .collection("movies")
-      .find(request.query)
-      .toArray();
+    const movies = await getAllMovies(request);
   
     response.send(movies);
       
@@ -36,7 +32,7 @@ router.get("/", async function (request, response) {
       // const movie = movies.find((mv) => mv.id == id); 
       
   
-      const movie = await client.db("test").collection("movies").findOne({id: id})
+      const movie = await getMovieById(id)
       console.log(movie);
   
       movie ? response.send(movie) : response.send({ msg: "Movie not find" });
@@ -53,7 +49,7 @@ router.get("/", async function (request, response) {
     // const movie = movies.find((mv) => mv.id == id); 
     
   
-    const result = await client.db("test").collection("movies").deleteOne({id: id})
+    const result = await deleteMovieById(id)
     console.log(result);
   
     result.deletedCount > 0 ? response.send({msg: "Movie Deleted Successfully!"}) : response.send({ msg: "Movie not find" });
@@ -68,10 +64,7 @@ router.get("/", async function (request, response) {
   
     console.log(data);
   
-    const result = await client
-        .db("test")
-        .collection("movies")
-        .insertMany(data);
+    const result = await createMovies(data);
   
     console.log(result);
   
@@ -86,10 +79,7 @@ router.get("/", async function (request, response) {
   
     console.log(data);
   
-    const result = await client
-        .db("test")
-        .collection("movies")
-        .updateOne({id: id}, {$set: data});
+    const result = await updateMovieById(id, data);
   
     console.log(result);
   
@@ -98,3 +88,5 @@ router.get("/", async function (request, response) {
   });
 
   export const moviesRouter = router;
+
+
