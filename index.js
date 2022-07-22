@@ -2,6 +2,7 @@
 import express from "express"; //"type": "module"
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
+import {moviesRouter} from "./routes/movies.js";
 
 dotenv.config();
 
@@ -114,104 +115,13 @@ async function createConnection(){
   return client;
 }
 
-const client = await createConnection();
+export const client = await createConnection();
 
 app.get("/", function (request, response) {
   response.send("Welcome to our app");
 })
 
-app.get("/movies", async function (request, response) {
-  // db.movies.find({})
-
-  console.log(request.query);
-
-// to convert string to number
-  if(request.query.rating){
-    request.query.rating = +request.query.rating;
-  }
-
-  // console.log(request.query);
-
-  // Cursor -> Pagination | cursor -> Array | toArray()
-  const movies = await client
-    .db("test")
-    .collection("movies")
-    .find(request.query)
-    .toArray();
-
-  response.send(movies);
-    
-})
-
-app.get("/movies/:id", async function (request, response) {
-    const {id} = request.params;
-    console.log(request.params, id);
-
-    //db.movies.findOne({id: "102"})
-
-    // const movie = movies.find((mv) => mv.id == id); 
-    
-
-    const movie = await client.db("test").collection("movies").findOne({id: id})
-    console.log(movie);
-
-    movie ? response.send(movie) : response.send({ msg: "Movie not find" });
-    
-});
-
-// Delete movie by id
-app.delete("/movies/:id", async function (request, response) {
-  const {id} = request.params;
-  console.log(request.params, id);
-
-  //db.movies.deleteOne({id: "102"})
-
-  // const movie = movies.find((mv) => mv.id == id); 
-  
-
-  const result = await client.db("test").collection("movies").deleteOne({id: id})
-  console.log(result);
-
-  result.deletedCount > 0 ? response.send({msg: "Movie Deleted Successfully!"}) : response.send({ msg: "Movie not find" });
-  
-});
-
-// middleware - express.json() -> body -> JSON
-// Create movies
-app.post("/movies", async function (request, response) {
-  const data = request.body;
-  //db.movies.insertMany(data)
-
-  console.log(data);
-
-  const result = await client
-      .db("test")
-      .collection("movies")
-      .insertMany(data);
-
-  console.log(result);
-
-  response.send(result);
-    
-});
-
-app.put("/movies/:id", async function (request, response) {
-  const {id} = request.params;
-  const data = request.body;
-  //db.movies.updateOne({id: id}, {$set: data})
-
-  console.log(data);
-
-  const result = await client
-      .db("test")
-      .collection("movies")
-      .updateOne({id: id}, {$set: data});
-
-  console.log(result);
-
-  response.send(result);
-
-});
+app.use("/movies", moviesRouter)
 
 app.listen(PORT, () => console.log(`App started in ${PORT}`));
 
